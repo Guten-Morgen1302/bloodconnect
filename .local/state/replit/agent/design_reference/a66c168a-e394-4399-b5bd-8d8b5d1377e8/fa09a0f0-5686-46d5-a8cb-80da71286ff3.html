@@ -1,0 +1,1238 @@
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodConnect - Emergency Blood Donor Network</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#D72638',
+                            600: '#B91C3C',
+                            700: '#991B1B',
+                            800: '#7F1D1D'
+                        },
+                        accent: {
+                            green: '#00FF88',
+                            coral: '#FF6B6B'
+                        },
+                        dark: {
+                            100: '#0F0F0F',
+                            200: '#1A1A1A',
+                            300: '#2D2D2D',
+                            400: '#404040'
+                        }
+                    },
+                    fontFamily: {
+                        'heading': ['Poppins', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif']
+                    },
+                    animation: {
+                        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+                        'slide-up': 'slide-up 0.6s ease-out',
+                        'fade-in': 'fade-in 0.8s ease-out',
+                        'scale-in': 'scale-in 0.5s ease-out',
+                        'emergency-pulse': 'emergency-pulse 1.5s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        'pulse-glow': {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(215, 38, 56, 0.5)' },
+                            '50%': { boxShadow: '0 0 30px rgba(215, 38, 56, 0.8)' }
+                        },
+                        'slide-up': {
+                            '0%': { transform: 'translateY(100px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        'fade-in': {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        'scale-in': {
+                            '0%': { transform: 'scale(0.8)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' }
+                        },
+                        'emergency-pulse': {
+                            '0%, 100%': { backgroundColor: '#D72638' },
+                            '50%': { backgroundColor: '#B91C3C' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+</head>
+
+<body class="bg-dark-100 text-white overflow-x-hidden">
+    <!-- Custom Cursor -->
+    <div id="cursor" class="fixed w-8 h-8 bg-primary-500 rounded-full pointer-events-none z-50 mix-blend-difference transition-all duration-300 ease-out"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-dark-200/90 backdrop-blur-md z-40 border-b border-dark-300">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-r from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-heart text-white text-lg"></i>
+                    </div>
+                    <span class="font-heading font-bold text-xl text-white">BloodConnect</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="nav-link text-white hover:text-accent-green transition-colors duration-300">Home</a>
+                    <a href="#find-donors" class="nav-link text-white hover:text-accent-green transition-colors duration-300">Find Donors</a>
+                    <a href="#register" class="nav-link text-white hover:text-accent-green transition-colors duration-300">Register</a>
+                    <a href="#dashboard" class="nav-link text-white hover:text-accent-green transition-colors duration-300">Dashboard</a>
+                    <a href="#about" class="nav-link text-white hover:text-accent-green transition-colors duration-300">About</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button class="emergency-btn bg-primary-500 hover:bg-primary-600 px-6 py-2 rounded-full font-semibold transition-all duration-300 animate-emergency-pulse">
+                        Emergency
+                    </button>
+                    <button class="md:hidden text-white">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Section -->
+    <section id="home" class="min-h-screen relative overflow-hidden">
+        <!-- Animated Background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-dark-100 via-dark-200 to-primary-800/20"></div>
+        
+        <!-- Parallax Elements -->
+        <div class="absolute inset-0">
+            <div class="parallax-element absolute top-20 left-10 w-32 h-32 bg-primary-500/10 rounded-full blur-xl"></div>
+            <div class="parallax-element absolute bottom-20 right-10 w-48 h-48 bg-accent-green/10 rounded-full blur-xl"></div>
+            <div class="parallax-element absolute top-1/2 left-1/2 w-64 h-64 bg-accent-coral/10 rounded-full blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
+        </div>
+
+        <div class="relative container mx-auto px-6 pt-32 pb-20">
+            <div class="text-center">
+                <h1 class="font-heading font-bold text-6xl md:text-8xl mb-6 animate-fade-in">
+                    <span class="bg-gradient-to-r from-white via-accent-coral to-primary-500 bg-clip-text text-transparent">
+                        Save Lives
+                    </span>
+                    <br>
+                    <span class="text-white">Connect Donors</span>
+                </h1>
+                
+                <p class="font-body text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto animate-slide-up">
+                    Real-time blood donor matching with AI-powered emergency response. Connect with verified donors in your area instantly.
+                </p>
+
+                <div class="flex flex-col md:flex-row items-center justify-center gap-6 mb-16">
+                    <button class="emergency-cta bg-gradient-to-r from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 px-12 py-6 rounded-full font-heading font-bold text-xl transition-all duration-300 transform hover:scale-105 animate-pulse-glow">
+                        <i class="fas fa-exclamation-triangle mr-3"></i>
+                        Request Blood Now
+                    </button>
+                    
+                    <button class="secondary-cta border-2 border-accent-green text-accent-green hover:bg-accent-green hover:text-dark-100 px-12 py-6 rounded-full font-heading font-semibold text-xl transition-all duration-300">
+                        <i class="fas fa-user-plus mr-3"></i>
+                        Become a Donor
+                    </button>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                    <div class="stat-card bg-dark-200/50 backdrop-blur-md border border-dark-300 rounded-2xl p-6 animate-scale-in">
+                        <div class="text-3xl font-bold text-accent-green mb-2">15,000+</div>
+                        <div class="text-gray-400">Registered Donors</div>
+                    </div>
+                    <div class="stat-card bg-dark-200/50 backdrop-blur-md border border-dark-300 rounded-2xl p-6 animate-scale-in" style="animation-delay: 0.2s;">
+                        <div class="text-3xl font-bold text-accent-coral mb-2">2,500</div>
+                        <div class="text-gray-400">Lives Saved</div>
+                    </div>
+                    <div class="stat-card bg-dark-200/50 backdrop-blur-md border border-dark-300 rounded-2xl p-6 animate-scale-in" style="animation-delay: 0.4s;">
+                        <div class="text-3xl font-bold text-primary-500 mb-2">24/7</div>
+                        <div class="text-gray-400">Emergency Response</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Find Donors Section -->
+    <section id="find-donors" class="min-h-screen py-20 bg-dark-200">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="font-heading font-bold text-5xl mb-6 text-white">Find Donors Near You</h2>
+                <p class="font-body text-xl text-gray-300 max-w-2xl mx-auto">
+                    Use our advanced search and mapping system to locate verified blood donors in real-time.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Search Filters -->
+                <div class="bg-dark-300 rounded-2xl p-6 border border-dark-400">
+                    <h3 class="font-heading font-semibold text-xl mb-6 text-white">Search Filters</h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Blood Type</label>
+                            <select class="w-full bg-dark-200 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-accent-green focus:outline-none">
+                                <option>A+</option>
+                                <option>A-</option>
+                                <option>B+</option>
+                                <option>B-</option>
+                                <option>O+</option>
+                                <option>O-</option>
+                                <option>AB+</option>
+                                <option>AB-</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Distance</label>
+                            <input type="range" class="w-full accent-primary-500" min="1" max="50" value="10">
+                            <div class="flex justify-between text-sm text-gray-400 mt-1">
+                                <span>1km</span>
+                                <span>50km</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Urgency Level</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="urgency" class="text-primary-500 focus:ring-primary-500">
+                                    <span class="ml-2 text-red-400">Critical</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="urgency" class="text-primary-500 focus:ring-primary-500">
+                                    <span class="ml-2 text-yellow-400">Urgent</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="urgency" class="text-primary-500 focus:ring-primary-500">
+                                    <span class="ml-2 text-green-400">Routine</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full bg-gradient-to-r from-accent-green to-green-600 hover:from-green-600 hover:to-green-700 px-6 py-3 rounded-lg font-semibold transition-all duration-300">
+                            <i class="fas fa-search mr-2"></i>
+                            Search Donors
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Map Area -->
+                <div class="lg:col-span-2 bg-dark-300 rounded-2xl p-6 border border-dark-400">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-heading font-semibold text-xl text-white">Live Donor Map</h3>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-accent-green rounded-full mr-2"></div>
+                                <span class="text-sm text-gray-400">Available</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-accent-coral rounded-full mr-2"></div>
+                                <span class="text-sm text-gray-400">Blood Banks</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Map Placeholder with Interactive Elements -->
+                    <div class="relative bg-dark-200 rounded-xl h-96 overflow-hidden">
+                        <!-- Simulated Map Background -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 opacity-50"></div>
+                        
+                        <!-- Animated Donor Markers -->
+                        <div class="absolute top-1/4 left-1/3 w-4 h-4 bg-accent-green rounded-full animate-ping"></div>
+                        <div class="absolute top-1/2 right-1/4 w-4 h-4 bg-accent-green rounded-full animate-ping" style="animation-delay: 0.5s;"></div>
+                        <div class="absolute bottom-1/3 left-1/2 w-4 h-4 bg-accent-coral rounded-full animate-ping" style="animation-delay: 1s;"></div>
+                        
+                        <!-- Map Controls -->
+                        <div class="absolute top-4 right-4 flex flex-col space-y-2">
+                            <button class="bg-dark-300 hover:bg-dark-400 p-3 rounded-lg transition-colors">
+                                <i class="fas fa-plus text-white"></i>
+                            </button>
+                            <button class="bg-dark-300 hover:bg-dark-400 p-3 rounded-lg transition-colors">
+                                <i class="fas fa-minus text-white"></i>
+                            </button>
+                            <button class="bg-dark-300 hover:bg-dark-400 p-3 rounded-lg transition-colors">
+                                <i class="fas fa-location-arrow text-white"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="text-center text-gray-400">
+                                <i class="fas fa-map-marked-alt text-4xl mb-4"></i>
+                                <p>Interactive map with real-time donor locations</p>
+                                <p class="text-sm mt-2"><!-- TODO: Integrate Google Maps API --></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Results -->
+            <div class="mt-12">
+                <h3 class="font-heading font-semibold text-2xl mb-6 text-white">Available Donors</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Donor Card 1 -->
+                    <div class="donor-card bg-dark-300 rounded-xl p-6 border border-dark-400 hover:border-accent-green transition-all duration-300 transform hover:scale-105">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-r from-accent-green to-green-600 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white">Raj Sharma</h4>
+                                <p class="text-sm text-gray-400">Verified Donor</p>
+                            </div>
+                            <div class="ml-auto">
+                                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">O+</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-400">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                <span>2.3 km away</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-400">
+                                <i class="fas fa-clock mr-2"></i>
+                                <span>Available now</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-400">
+                                <i class="fas fa-star mr-2"></i>
+                                <span>4.9 rating (23 donations)</span>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full bg-primary-500 hover:bg-primary-600 px-4 py-2 rounded-lg font-semibold transition-colors duration-300">
+                            <i class="fas fa-phone mr-2"></i>
+                            Contact Donor
+                        </button>
+                    </div>
+
+                    <!-- Donor Card 2 -->
+                    <div class="donor-card bg-dark-300 rounded-xl p-6 border border-dark-400 hover:border-accent-green transition-all duration-300 transform hover:scale-105">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-r from-accent-green to-green-600 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white">Priya Patel</h4>
+                                <p class="text-sm text-gray-400">Verified Donor</p>
+                            </div>
+                            <div class="ml-auto">
+                                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">O+</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-400">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                <span>4.1 km away</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-400">
+                                <i class="fas fa-clock mr-2"></i>
+                                <span>Available in 30 min</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-400">
+                                <i class="fas fa-star mr-2"></i>
+                                <span>4.8 rating (18 donations)</span>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full bg-primary-500 hover:bg-primary-600 px-4 py-2 rounded-lg font-semibold transition-colors duration-300">
+                            <i class="fas fa-phone mr-2"></i>
+                            Contact Donor
+                        </button>
+                    </div>
+
+                    <!-- Blood Bank Card -->
+                    <div class="donor-card bg-dark-300 rounded-xl p-6 border border-dark-400 hover:border-accent-coral transition-all duration-300 transform hover:scale-105">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-r from-accent-coral to-red-600 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-hospital text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white">City Blood Bank</h4>
+                                <p class="text-sm text-gray-400">Medical Facility</p>
+                            </div>
+                            <div class="ml-auto">
+                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">Open</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-400">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                <span>1.8 km away</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-400">
+                                <i class="fas fa-tint mr-2"></i>
+                                <span>O+ Available: 15 units</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-400">
+                                <i class="fas fa-clock mr-2"></i>
+                                <span>Open 24/7</span>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full bg-accent-coral hover:bg-red-600 px-4 py-2 rounded-lg font-semibold transition-colors duration-300">
+                            <i class="fas fa-directions mr-2"></i>
+                            Get Directions
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Donor Registration Section -->
+    <section id="register" class="min-h-screen py-20 bg-dark-100">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="font-heading font-bold text-5xl mb-6 text-white">Become a Life Saver</h2>
+                <p class="font-body text-xl text-gray-300 max-w-2xl mx-auto">
+                    Join thousands of verified donors making a difference in their communities. Complete registration in just 3 steps.
+                </p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <!-- Progress Indicator -->
+                <div class="flex items-center justify-center mb-12">
+                    <div class="flex items-center space-x-4">
+                        <div class="step-indicator active flex items-center justify-center w-12 h-12 bg-primary-500 rounded-full text-white font-semibold">1</div>
+                        <div class="w-16 h-1 bg-primary-500"></div>
+                        <div class="step-indicator flex items-center justify-center w-12 h-12 bg-dark-300 rounded-full text-gray-400 font-semibold">2</div>
+                        <div class="w-16 h-1 bg-dark-300"></div>
+                        <div class="step-indicator flex items-center justify-center w-12 h-12 bg-dark-300 rounded-full text-gray-400 font-semibold">3</div>
+                    </div>
+                </div>
+
+                <!-- Registration Form -->
+                <div class="bg-dark-200 rounded-2xl p-8 border border-dark-300">
+                    <h3 class="font-heading font-semibold text-2xl mb-8 text-white text-center">Personal Information</h3>
+                    
+                    <form class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Full Name *</label>
+                                <input type="text" class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-accent-green focus:outline-none transition-colors" placeholder="Enter your full name">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Email Address *</label>
+                                <input type="email" class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-accent-green focus:outline-none transition-colors" placeholder="your@email.com">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Phone Number *</label>
+                                <input type="tel" class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-accent-green focus:outline-none transition-colors" placeholder="+91 XXXXX XXXXX">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Date of Birth *</label>
+                                <input type="date" class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-accent-green focus:outline-none transition-colors">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Blood Type *</label>
+                                <select class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-accent-green focus:outline-none transition-colors">
+                                    <option value="">Select blood type</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Gender *</label>
+                                <select class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-accent-green focus:outline-none transition-colors">
+                                    <option value="">Select gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Weight (kg) *</label>
+                                <input type="number" class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-accent-green focus:outline-none transition-colors" placeholder="50" min="45">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Address *</label>
+                            <textarea class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-accent-green focus:outline-none transition-colors h-24 resize-none" placeholder="Enter your complete address"></textarea>
+                        </div>
+
+                        <div class="space-y-4">
+                            <h4 class="font-semibold text-lg text-white">Health Screening</h4>
+                            <div class="space-y-3">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="text-primary-500 focus:ring-primary-500 bg-dark-300 border-dark-400">
+                                    <span class="ml-3 text-gray-300">I am in good health and not currently taking any medications</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="text-primary-500 focus:ring-primary-500 bg-dark-300 border-dark-400">
+                                    <span class="ml-3 text-gray-300">I have not donated blood in the last 3 months</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="text-primary-500 focus:ring-primary-500 bg-dark-300 border-dark-400">
+                                    <span class="ml-3 text-gray-300">I agree to terms and conditions and privacy policy</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between pt-6">
+                            <button type="button" class="px-8 py-3 border border-dark-400 text-gray-400 rounded-lg font-semibold hover:bg-dark-300 transition-colors duration-300">
+                                Back
+                            </button>
+                            <button type="submit" class="px-8 py-3 bg-gradient-to-r from-accent-green to-green-600 hover:from-green-600 hover:to-green-700 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
+                                Continue to Next Step
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Emergency Request Section -->
+    <section id="emergency" class="min-h-screen py-20 bg-gradient-to-br from-primary-800 to-dark-100">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-red-500 rounded-full mb-6 animate-pulse-glow">
+                    <i class="fas fa-exclamation-triangle text-white text-3xl"></i>
+                </div>
+                <h2 class="font-heading font-bold text-5xl mb-6 text-white">Emergency Blood Request</h2>
+                <p class="font-body text-xl text-gray-300 max-w-2xl mx-auto">
+                    Submit urgent blood requirements and get instant alerts to nearby donors and blood banks.
+                </p>
+            </div>
+
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-dark-200 rounded-2xl p-8 border border-red-500/30 shadow-2xl">
+                    <form class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Patient Name *</label>
+                                <input type="text" class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors" placeholder="Enter patient name">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Blood Type Required *</label>
+                                <select class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors">
+                                    <option value="">Select blood type</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Units Required *</label>
+                                <input type="number" class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors" placeholder="1" min="1">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Urgency Level *</label>
+                                <select class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors">
+                                    <option value="">Select urgency</option>
+                                    <option value="critical">Critical (0-2 hours)</option>
+                                    <option value="urgent">Urgent (2-6 hours)</option>
+                                    <option value="routine">Routine (6+ hours)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Hospital/Location *</label>
+                            <input type="text" class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors" placeholder="Enter hospital name and address">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Contact Person *</label>
+                            <input type="text" class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors" placeholder="Name of contact person">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Phone Number *</label>
+                            <input type="tel" class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors" placeholder="+91 XXXXX XXXXX">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Additional Notes</label>
+                            <textarea class="w-full bg-dark-300 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors h-24 resize-none" placeholder="Any additional information about the emergency..."></textarea>
+                        </div>
+
+                        <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                            <div class="flex items-start">
+                                <i class="fas fa-info-circle text-red-500 mt-1 mr-3"></i>
+                                <div class="text-sm text-gray-300">
+                                    <p class="font-semibold text-red-400 mb-1">Emergency Protocol:</p>
+                                    <p>Once submitted, this request will be immediately broadcasted to all eligible donors within 25km radius. Blood banks will also be notified automatically.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 px-8 py-4 rounded-lg font-heading font-bold text-xl transition-all duration-300 transform hover:scale-105 animate-emergency-pulse">
+                            <i class="fas fa-broadcast-tower mr-3"></i>
+                            Send Emergency Alert
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="min-h-screen py-20 bg-dark-200">
+        <div class="container mx-auto px-6">
+            <div class="flex items-center justify-between mb-12">
+                <div>
+                    <h2 class="font-heading font-bold text-4xl text-white mb-2">Dashboard</h2>
+                    <p class="text-gray-400">Welcome back, Raj Sharma</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="bg-accent-green hover:bg-green-600 px-6 py-3 rounded-lg font-semibold transition-colors duration-300">
+                        <i class="fas fa-user-edit mr-2"></i>
+                        Edit Profile
+                    </button>
+                    <div class="relative">
+                        <button class="bg-dark-300 hover:bg-dark-400 p-3 rounded-lg transition-colors duration-300">
+                            <i class="fas fa-bell text-white"></i>
+                        </button>
+                        <div class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Profile Card -->
+                <div class="bg-dark-300 rounded-2xl p-6 border border-dark-400">
+                    <div class="text-center mb-6">
+                        <div class="w-24 h-24 bg-gradient-to-r from-accent-green to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-user text-white text-3xl"></i>
+                        </div>
+                        <h3 class="font-heading font-semibold text-xl text-white mb-1">Raj Sharma</h3>
+                        <p class="text-gray-400 mb-2">Verified Donor</p>
+                        <div class="inline-flex items-center bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                            <i class="fas fa-tint mr-2"></i>
+                            O+ Blood Type
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Total Donations</span>
+                            <span class="font-semibold text-accent-green">23</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Lives Saved</span>
+                            <span class="font-semibold text-accent-coral">69</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Rating</span>
+                            <span class="font-semibold text-yellow-400">4.9 ⭐</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Availability</span>
+                            <span class="font-semibold text-accent-green">Available</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-gray-400">Next Eligible</span>
+                            <span class="text-sm text-white">Ready Now</span>
+                        </div>
+                        <div class="w-full bg-dark-400 rounded-full h-2">
+                            <div class="bg-accent-green h-2 rounded-full w-full"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Timeline -->
+                <div class="lg:col-span-2 bg-dark-300 rounded-2xl p-6 border border-dark-400">
+                    <h3 class="font-heading font-semibold text-xl text-white mb-6">Recent Activity</h3>
+                    
+                    <div class="space-y-6">
+                        <!-- Activity Item 1 -->
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 bg-accent-green rounded-full flex items-center justify-center">
+                                <i class="fas fa-tint text-white"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-semibold text-white">Blood Donation Completed</h4>
+                                    <span class="text-sm text-gray-400">2 days ago</span>
+                                </div>
+                                <p class="text-gray-400 text-sm mt-1">You donated blood at City Hospital for emergency case #12345</p>
+                                <div class="flex items-center mt-2">
+                                    <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs">Completed</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity Item 2 -->
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 bg-accent-coral rounded-full flex items-center justify-center">
+                                <i class="fas fa-bell text-white"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-semibold text-white">Emergency Alert Received</h4>
+                                    <span class="text-sm text-gray-400">1 week ago</span>
+                                </div>
+                                <p class="text-gray-400 text-sm mt-1">Urgent O+ blood needed at Metro Hospital - You responded</p>
+                                <div class="flex items-center mt-2">
+                                    <span class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-xs">Responded</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity Item 3 -->
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user-check text-white"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-semibold text-white">Profile Verified</h4>
+                                    <span class="text-sm text-gray-400">2 weeks ago</span>
+                                </div>
+                                <p class="text-gray-400 text-sm mt-1">Your donor profile has been verified and approved</p>
+                                <div class="flex items-center mt-2">
+                                    <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs">Verified</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-12">
+                <div class="bg-dark-300 rounded-xl p-6 border border-dark-400">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-sm">This Month</p>
+                            <p class="text-2xl font-bold text-white">2</p>
+                            <p class="text-accent-green text-sm">Donations</p>
+                        </div>
+                        <i class="fas fa-tint text-accent-green text-2xl"></i>
+                    </div>
+                </div>
+
+                <div class="bg-dark-300 rounded-xl p-6 border border-dark-400">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-sm">Response Rate</p>
+                            <p class="text-2xl font-bold text-white">95%</p>
+                            <p class="text-accent-coral text-sm">To Alerts</p>
+                        </div>
+                        <i class="fas fa-clock text-accent-coral text-2xl"></i>
+                    </div>
+                </div>
+
+                <div class="bg-dark-300 rounded-xl p-6 border border-dark-400">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-sm">Avg Time</p>
+                            <p class="text-2xl font-bold text-white">45m</p>
+                            <p class="text-primary-500 text-sm">To Respond</p>
+                        </div>
+                        <i class="fas fa-stopwatch text-primary-500 text-2xl"></i>
+                    </div>
+                </div>
+
+                <div class="bg-dark-300 rounded-xl p-6 border border-dark-400">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-sm">Recognition</p>
+                            <p class="text-2xl font-bold text-white">Gold</p>
+                            <p class="text-yellow-400 text-sm">Donor Status</p>
+                        </div>
+                        <i class="fas fa-medal text-yellow-400 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="min-h-screen py-20 bg-dark-100">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="font-heading font-bold text-5xl mb-6 text-white">About BloodConnect</h2>
+                <p class="font-body text-xl text-gray-300 max-w-3xl mx-auto">
+                    We're revolutionizing emergency blood donation through technology, connecting donors with those in need faster than ever before.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
+                <!-- Mission Content -->
+                <div>
+                    <h3 class="font-heading font-bold text-3xl text-white mb-6">Our Mission</h3>
+                    <p class="text-gray-300 text-lg mb-6 leading-relaxed">
+                        Every minute counts in medical emergencies. BloodConnect bridges the critical gap between blood donors and those in urgent need, using AI-powered matching and real-time location services to save lives.
+                    </p>
+                    <p class="text-gray-300 text-lg mb-8 leading-relaxed">
+                        Since our launch, we've facilitated over 2,500 successful blood donations, directly contributing to saving thousands of lives across India.
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-accent-green rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-check text-white"></i>
+                            </div>
+                            <span class="text-white font-semibold">Instant donor matching within 2km radius</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-accent-coral rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-check text-white"></i>
+                            </div>
+                            <span class="text-white font-semibold">24/7 emergency response system</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-check text-white"></i>
+                            </div>
+                            <span class="text-white font-semibold">Verified donor database with health screening</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mission Image -->
+                <div class="relative">
+                    <!-- A diverse group of medical professionals and volunteers at a blood donation drive -->
+                    <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" alt="Medical professionals at blood donation center" class="rounded-2xl shadow-2xl w-full">
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark-100/50 to-transparent rounded-2xl"></div>
+                </div>
+            </div>
+
+            <!-- Impact Statistics -->
+            <div class="bg-dark-200 rounded-2xl p-12 border border-dark-300 mb-20">
+                <h3 class="font-heading font-bold text-3xl text-white text-center mb-12">Our Impact</h3>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-accent-green mb-2">15,000+</div>
+                        <div class="text-gray-400">Registered Donors</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-accent-coral mb-2">2,500</div>
+                        <div class="text-gray-400">Lives Saved</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-primary-500 mb-2">50+</div>
+                        <div class="text-gray-400">Partner Hospitals</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-yellow-400 mb-2">25</div>
+                        <div class="text-gray-400">Cities Covered</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Section -->
+            <div class="text-center mb-12">
+                <h3 class="font-heading font-bold text-3xl text-white mb-6">Meet Our Team</h3>
+                <p class="text-gray-300 text-lg max-w-2xl mx-auto">
+                    Passionate healthcare professionals and technologists working together to save lives.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Team Member 1 -->
+                <div class="bg-dark-300 rounded-xl p-6 border border-dark-400 text-center">
+                    <div class="w-24 h-24 bg-gradient-to-r from-accent-green to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user text-white text-2xl"></i>
+                    </div>
+                    <h4 class="font-heading font-semibold text-xl text-white mb-2">Dr. Ananya Krishnan</h4>
+                    <p class="text-accent-green mb-3">Chief Medical Officer</p>
+                    <p class="text-gray-400 text-sm">15+ years in emergency medicine, passionate about healthcare innovation</p>
+                </div>
+
+                <!-- Team Member 2 -->
+                <div class="bg-dark-300 rounded-xl p-6 border border-dark-400 text-center">
+                    <div class="w-24 h-24 bg-gradient-to-r from-primary-500 to-primary-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user text-white text-2xl"></i>
+                    </div>
+                    <h4 class="font-heading font-semibold text-xl text-white mb-2">Arjun Malhotra</h4>
+                    <p class="text-primary-500 mb-3">CTO & Co-Founder</p>
+                    <p class="text-gray-400 text-sm">Former Google engineer, expert in AI and real-time systems</p>
+                </div>
+
+                <!-- Team Member 3 -->
+                <div class="bg-dark-300 rounded-xl p-6 border border-dark-400 text-center">
+                    <div class="w-24 h-24 bg-gradient-to-r from-accent-coral to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user text-white text-2xl"></i>
+                    </div>
+                    <h4 class="font-heading font-semibold text-xl text-white mb-2">Priya Sharma</h4>
+                    <p class="text-accent-coral mb-3">Head of Operations</p>
+                    <p class="text-gray-400 text-sm">Healthcare operations specialist with NGO background</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="min-h-screen py-20 bg-dark-200">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="font-heading font-bold text-5xl mb-6 text-white">Get In Touch</h2>
+                <p class="font-body text-xl text-gray-300 max-w-2xl mx-auto">
+                    Have questions or need support? We're here to help 24/7.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <!-- Contact Form -->
+                <div class="bg-dark-300 rounded-2xl p-8 border border-dark-400">
+                    <h3 class="font-heading font-semibold text-2xl text-white mb-6">Send us a Message</h3>
+                    
+                    <form class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">First Name</label>
+                                <input type="text" class="w-full bg-dark-200 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-accent-green focus:outline-none transition-colors" placeholder="John">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Last Name</label>
+                                <input type="text" class="w-full bg-dark-200 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-accent-green focus:outline-none transition-colors" placeholder="Doe">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                            <input type="email" class="w-full bg-dark-200 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-accent-green focus:outline-none transition-colors" placeholder="john@example.com">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Subject</label>
+                            <select class="w-full bg-dark-200 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-accent-green focus:outline-none transition-colors">
+                                <option>General Inquiry</option>
+                                <option>Technical Support</option>
+                                <option>Partnership</option>
+                                <option>Medical Emergency</option>
+                                <option>Feedback</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Message</label>
+                            <textarea class="w-full bg-dark-200 border border-dark-400 rounded-lg px-4 py-3 text-white focus:border-accent-green focus:outline-none transition-colors h-32 resize-none" placeholder="Tell us how we can help..."></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full bg-gradient-to-r from-accent-green to-green-600 hover:from-green-600 hover:to-green-700 px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Contact Info & Map -->
+                <div class="space-y-8">
+                    <!-- Contact Cards -->
+                    <div class="grid grid-cols-1 gap-6">
+                        <div class="bg-dark-300 rounded-xl p-6 border border-dark-400">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-accent-green rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-phone text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white">Emergency Hotline</h4>
+                                    <p class="text-gray-400">Available 24/7</p>
+                                </div>
+                            </div>
+                            <p class="text-lg font-semibold text-accent-green">+91-911-BLOOD-1</p>
+                        </div>
+
+                        <div class="bg-dark-300 rounded-xl p-6 border border-dark-400">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-accent-coral rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-envelope text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white">Email Support</h4>
+                                    <p class="text-gray-400">We'll respond within 2 hours</p>
+                                </div>
+                            </div>
+                            <p class="text-lg font-semibold text-accent-coral">support@bloodconnect.in</p>
+                        </div>
+
+                        <div class="bg-dark-300 rounded-xl p-6 border border-dark-400">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-map-marker-alt text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white">Headquarters</h4>
+                                    <p class="text-gray-400">Visit us during business hours</p>
+                                </div>
+                            </div>
+                            <p class="text-lg font-semibold text-white">Mumbai, Maharashtra 400001</p>
+                        </div>
+                    </div>
+
+                    <!-- Map Placeholder -->
+                    <div class="bg-dark-300 rounded-xl p-6 border border-dark-400">
+                        <h4 class="font-semibold text-white mb-4">Our Location</h4>
+                        <div class="bg-dark-200 rounded-lg h-64 flex items-center justify-center">
+                            <div class="text-center text-gray-400">
+                                <i class="fas fa-map text-4xl mb-4"></i>
+                                <p>Interactive map integration</p>
+                                <p class="text-sm mt-2"><!-- TODO: Embed Google Maps --></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark-100 border-t border-dark-300 py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <!-- Brand -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-heart text-white"></i>
+                        </div>
+                        <span class="font-heading font-bold text-lg text-white">BloodConnect</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">Connecting donors with those in need, saving lives through technology.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-accent-green transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-accent-green transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-accent-green transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-accent-green transition-colors">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-gray-400 hover:text-accent-green transition-colors">Home</a></li>
+                        <li><a href="#find-donors" class="text-gray-400 hover:text-accent-green transition-colors">Find Donors</a></li>
+                        <li><a href="#register" class="text-gray-400 hover:text-accent-green transition-colors">Register</a></li>
+                        <li><a href="#emergency" class="text-gray-400 hover:text-accent-green transition-colors">Emergency</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-accent-green transition-colors">About Us</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-accent-green transition-colors">Help Center</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-accent-green transition-colors">FAQs</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-accent-green transition-colors">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-accent-green transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-accent-green transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Emergency Contact</h4>
+                    <div class="space-y-2">
+                        <p class="text-gray-400">
+                            <i class="fas fa-phone mr-2"></i>
+                            +91-911-BLOOD-1
+                        </p>
+                        <p class="text-gray-400">
+                            <i class="fas fa-envelope mr-2"></i>
+                            emergency@bloodconnect.in
+                        </p>
+                        <p class="text-gray-400">
+                            <i class="fas fa-clock mr-2"></i>
+                            24/7 Emergency Response
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-dark-300 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2024 BloodConnect. All rights reserved. Made with ❤️ for saving lives.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Smooth scrolling navigation
+        (function() {
+            const navLinks = document.querySelectorAll('.nav-link, a[href^="#"]');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetSection = document.querySelector(targetId);
+                    
+                    if (targetSection) {
+                        targetSection.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        })();
+
+        // Custom cursor movement
+        (function() {
+            const cursor = document.getElementById('cursor');
+            
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+
+            // Cursor interactions
+            const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
+            
+            interactiveElements.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursor.style.transform = 'scale(1.5)';
+                    cursor.style.backgroundColor = '#00FF88';
+                });
+                
+                el.addEventListener('mouseleave', () => {
+                    cursor.style.transform = 'scale(1)';
+                    cursor.style.backgroundColor = '#D72638';
+                });
+            });
+        })();
+
+        // GSAP Animations
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Page load animations
+        gsap.from(".parallax-element", {
+            duration: 2,
+            scale: 0,
+            opacity: 0,
+            stagger: 0.2,
+            ease: "back.out(1.7)"
+        });
+
+        // Scroll triggered animations
+        gsap.utils.toArray('.stat-card').forEach((card, i) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: "top 80%",
+                    end: "bottom 20%",
+                    toggleActions: "play none none reverse"
+                },
+                y: 100,
+                opacity: 0,
+                duration: 0.8,
+                delay: i * 0.1
+            });
+        });
+
+        gsap.utils.toArray('.donor-card').forEach((card, i) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: "top 80%",
+                    end: "bottom 20%",
+                    toggleActions: "play none none reverse"
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.6,
+                delay: i * 0.1
+            });
+        });
+
+        // Parallax effect for background elements
+        gsap.utils.toArray('.parallax-element').forEach((element, i) => {
+            gsap.to(element, {
+                yPercent: -50,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: element,
+                    start: "top bottom",
+                    end: "bottom top",
+                    scrub: true
+                }
+            });
+        });
+
+        // Form animations
+        const inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                gsap.to(this, {
+                    scale: 1.02,
+                    duration: 0.3,
+                    ease: "power2.out"
+                });
+            });
+            
+            input.addEventListener('blur', function() {
+                gsap.to(this, {
+                    scale: 1,
+                    duration: 0.3,
+                    ease: "power2.out"
+                });
+            });
+        });
+
+        // Emergency button pulse animation
+        gsap.to('.emergency-btn', {
+            scale: 1.05,
+            duration: 1,
+            repeat: -1,
+            yoyo: true,
+            ease: "power2.inOut"
+        });
+
+        // TODO: Implement business logic for:
+        // - Real-time donor matching algorithm
+        // - GPS location services integration
+        // - Push notification system
+        // - Firebase authentication and database
+        // - Form validation and submission
+        // - Interactive map with Google Maps API
+        // - Real-time chat/messaging system
+        // - Payment gateway for donations
+        // - Advanced search and filtering
+        // - Analytics and reporting dashboard
+    </script>
+</body>
+</html>

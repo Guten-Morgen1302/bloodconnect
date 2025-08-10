@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodConnect - Digital Blood Bank & Donor Locator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+    tailwind.config = {
+        darkMode: 'class',
+        theme: {
+            extend: {
+                fontFamily: {
+                    'poppins': ['Poppins', 'sans-serif'],
+                    'inter': ['Inter', 'sans-serif'],
+                },
+                colors: {
+                    'blood-red': '#D72638',
+                    'crimson': '#8B0000',
+                    'neon-green': '#00FF88',
+                    'coral': '#FF6B6B',
+                    'dark-bg': '#0A0A0A',
+                    'dark-surface': '#1A1A1A',
+                    'dark-elevated': '#2A2A2A',
+                }
+            }
+        }
+    };
+    </script>
+    <style>
+        body {
+            cursor: none;
+            overflow-x: hidden;
+        }
+        
+        /* Custom Cursor */
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(45deg, #D72638, #00FF88);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.1s ease;
+        }
+        
+        .cursor-hover {
+            transform: scale(2);
+            background: #00FF88;
+        }
+        
+        .cursor-emergency {
+            transform: scale(3);
+            background: #D72638;
+            animation: pulse 0.5s infinite;
+        }
+        
+        /* Animated Gradients */
+        .gradient-bg {
+            background: linear-gradient(135deg, #D72638 0%, #8B0000 50%, #0A0A0A 100%);
+            background-size: 300% 300%;
+            animation: gradientShift 8s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .emergency-glow {
+            box-shadow: 0 0 30px rgba(215, 38, 56, 0.8), 
+                        0 0 60px rgba(215, 38, 56, 0.4),
+                        inset 0 0 20px rgba(215, 38, 56, 0.2);
+        }
+        
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.6),
+                        0 0 40px rgba(0, 255, 136, 0.3);
+        }
+        
+        .donor-card {
+            backdrop-filter: blur(10px);
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .map-marker {
+            animation: bounce 2s infinite;
+        }
+        
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .blood-drop {
+            width: 20px;
+            height: 20px;
+            background: #D72638;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        .notification-slide {
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .notification-slide.active {
+            transform: translateX(0);
+        }
+        
+        .parallax-layer {
+            transform-style: preserve-3d;
+        }
+    </style>
+</head>
+<body class="bg-dark-bg text-white font-inter overflow-x-hidden">
+    <!-- Custom Cursor -->
+    <div class="custom-cursor"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full z-50 bg-dark-bg/90 backdrop-blur-md border-b border-white/10">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="blood-drop"></div>
+                    <span class="text-2xl font-poppins font-bold text-blood-red">BloodConnect</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="hover:text-blood-red transition-colors">Home</a>
+                    <a href="#donors" class="hover:text-blood-red transition-colors">Find Donors</a>
+                    <a href="#dashboard" class="hover:text-blood-red transition-colors">Dashboard</a>
+                    <button class="bg-gradient-to-r from-blood-red to-crimson px-6 py-2 rounded-full text-white font-semibold hover:scale-105 transition-transform emergency-glow">
+                        Register as Donor
+                    </button>
+                </div>
+                <div class="md:hidden">
+                    <i class="fas fa-bars text-xl text-white"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Parallax -->
+    <section id="home" class="min-h-screen relative gradient-bg parallax-layer flex items-center justify-center">
+        <div class="absolute inset-0 opacity-20">
+            <!-- Emergency medical background with blur -->
+            <div class="w-full h-full bg-gradient-to-br from-blood-red/30 to-crimson/20"></div>
+        </div>
+        
+        <div class="container mx-auto px-6 text-center z-10 scroll-reveal">
+            <h1 class="text-6xl md:text-8xl font-poppins font-black mb-6 leading-tight">
+                <span class="text-white">Save Lives</span><br>
+                <span class="text-blood-red">Instantly</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto">
+                Connect blood donors with those in need through our real-time digital platform. 
+                Every second counts in emergencies.
+            </p>
+            
+            <!-- Emergency Request Button -->
+            <button id="emergency-request" class="bg-blood-red text-white px-16 py-6 text-2xl font-poppins font-bold rounded-full emergency-glow hover:scale-110 transition-all duration-300 mb-8">
+                <i class="fas fa-heart-pulse mr-4"></i>
+                REQUEST BLOOD NOW
+            </button>
+            
+            <div class="flex justify-center space-x-8 mt-12">
+                <div class="text-center scroll-reveal">
+                    <div class="text-4xl font-bold text-neon-green">24/7</div>
+                    <div class="text-gray-400">Available</div>
+                </div>
+                <div class="text-center scroll-reveal">
+                    <div class="text-4xl font-bold text-coral">5K+</div>
+                    <div class="text-gray-400">Donors</div>
+                </div>
+                <div class="text-center scroll-reveal">
+                    <div class="text-4xl font-bold text-neon-green">1M+</div>
+                    <div class="text-gray-400">Lives Saved</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Map Section -->
+    <section id="map-section" class="min-h-screen bg-dark-surface relative">
+        <div class="container mx-auto px-6 py-20">
+            <div class="text-center mb-16 scroll-reveal">
+                <h2 class="text-5xl font-poppins font-bold mb-6">
+                    <span class="text-white">Live Donor</span> 
+                    <span class="text-blood-red">Network</span>
+                </h2>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                    Real-time visualization of available donors and blood banks in your area
+                </p>
+            </div>
+            
+            <!-- Map Container -->
+            <div class="bg-dark-elevated rounded-3xl p-8 shadow-2xl scroll-reveal">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-poppins font-semibold">Interactive Map</h3>
+                    <div class="flex space-x-4">
+                        <button class="bg-neon-green/20 text-neon-green px-4 py-2 rounded-lg neon-glow">
+                            <i class="fas fa-user-plus mr-2"></i>Donors
+                        </button>
+                        <button class="bg-coral/20 text-coral px-4 py-2 rounded-lg">
+                            <i class="fas fa-hospital mr-2"></i>Blood Banks
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Simulated Map with Markers -->
+                <div class="bg-dark-bg rounded-2xl h-96 relative overflow-hidden">
+                    <!-- Background grid pattern -->
+                    <div class="absolute inset-0 opacity-10">
+                        <div class="w-full h-full" style="background-image: radial-gradient(circle, #333 1px, transparent 1px); background-size: 30px 30px;"></div>
+                    </div>
+                    
+                    <!-- Animated Markers -->
+                    <div class="absolute top-16 left-16 map-marker">
+                        <div class="w-6 h-6 bg-neon-green rounded-full neon-glow animate-pulse"></div>
+                        <div class="absolute -top-8 -left-8 bg-dark-elevated text-xs px-2 py-1 rounded whitespace-nowrap">
+                            John D. - O+ Available
+                        </div>
+                    </div>
+                    
+                    <div class="absolute top-32 right-20 map-marker">
+                        <div class="w-6 h-6 bg-coral rounded-full animate-pulse"></div>
+                        <div class="absolute -top-8 -left-8 bg-dark-elevated text-xs px-2 py-1 rounded whitespace-nowrap">
+                            City Hospital - Blood Bank
+                        </div>
+                    </div>
+                    
+                    <div class="absolute bottom-20 left-32 map-marker">
+                        <div class="w-6 h-6 bg-neon-green rounded-full neon-glow animate-pulse"></div>
+                        <div class="absolute -top-8 -left-8 bg-dark-elevated text-xs px-2 py-1 rounded whitespace-nowrap">
+                            Sarah M. - A+ Available
+                        </div>
+                    </div>
+                    
+                    <div class="absolute top-20 right-32 map-marker">
+                        <div class="w-6 h-6 bg-neon-green rounded-full neon-glow animate-pulse"></div>
+                        <div class="absolute -top-8 -left-8 bg-dark-elevated text-xs px-2 py-1 rounded whitespace-nowrap">
+                            Mike R. - B- Available
+                        </div>
+                    </div>
+                    
+                    <!-- Search Radius Animation -->
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div class="w-32 h-32 border-2 border-blood-red rounded-full opacity-30 animate-ping"></div>
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-blood-red rounded-full"></div>
+                    </div>
+                </div>
+                
+                <!-- Map Controls -->
+                <div class="mt-6 flex justify-between items-center">
+                    <div class="flex space-x-4">
+                        <button class="bg-dark-bg px-4 py-2 rounded-lg hover:bg-blood-red transition-colors">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button class="bg-dark-bg px-4 py-2 rounded-lg hover:bg-blood-red transition-colors">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button class="bg-dark-bg px-4 py-2 rounded-lg hover:bg-blood-red transition-colors">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                    </div>
+                    <div class="text-sm text-gray-400">
+                        <span class="text-neon-green">●</span> Available Donors 
+                        <span class="text-coral ml-4">●</span> Blood Banks
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Donor Cards Section -->
+    <section id="donors" class="py-20 bg-dark-bg">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 scroll-reveal">
+                <h2 class="text-5xl font-poppins font-bold mb-6">
+                    <span class="text-white">Available</span> 
+                    <span class="text-neon-green">Donors</span>
+                </h2>
+                <p class="text-xl text-gray-400">Connect with verified donors in your area</p>
+            </div>
+            
+            <!-- Donor Grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Donor Card 1 -->
+                <div class="donor-card rounded-2xl p-6 hover:scale-105 transition-all duration-300 scroll-reveal">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-neon-green to-blood-red rounded-full flex items-center justify-center text-xl font-bold">
+                                JD
+                            </div>
+                            <div>
+                                <h3 class="font-semibold">John Doe</h3>
+                                <p class="text-sm text-gray-400">2.3 km away</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-neon-green">O+</div>
+                            <div class="text-xs text-gray-400">Available</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-2 text-sm text-gray-400">
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <span>4.9 (23 donations)</span>
+                        </div>
+                        <button class="bg-blood-red text-white px-4 py-2 rounded-lg hover:bg-crimson transition-colors">
+                            Contact
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Donor Card 2 -->
+                <div class="donor-card rounded-2xl p-6 hover:scale-105 transition-all duration-300 scroll-reveal">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-coral to-blood-red rounded-full flex items-center justify-center text-xl font-bold">
+                                SM
+                            </div>
+                            <div>
+                                <h3 class="font-semibold">Sarah Martinez</h3>
+                                <p class="text-sm text-gray-400">1.8 km away</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-neon-green">A+</div>
+                            <div class="text-xs text-gray-400">Available</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-2 text-sm text-gray-400">
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <span>5.0 (15 donations)</span>
+                        </div>
+                        <button class="bg-blood-red text-white px-4 py-2 rounded-lg hover:bg-crimson transition-colors">
+                            Contact
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Donor Card 3 -->
+                <div class="donor-card rounded-2xl p-6 hover:scale-105 transition-all duration-300 scroll-reveal">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-neon-green to-coral rounded-full flex items-center justify-center text-xl font-bold">
+                                MR
+                            </div>
+                            <div>
+                                <h3 class="font-semibold">Mike Rodriguez</h3>
+                                <p class="text-sm text-gray-400">3.1 km away</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-neon-green">B-</div>
+                            <div class="text-xs text-gray-400">Available</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-2 text-sm text-gray-400">
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <span>4.8 (31 donations)</span>
+                        </div>
+                        <button class="bg-blood-red text-white px-4 py-2 rounded-lg hover:bg-crimson transition-colors">
+                            Contact
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Admin Dashboard Preview -->
+    <section id="dashboard" class="py-20 bg-dark-surface">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 scroll-reveal">
+                <h2 class="text-5xl font-poppins font-bold mb-6">
+                    <span class="text-white">Admin</span> 
+                    <span class="text-blood-red">Dashboard</span>
+                </h2>
+                <p class="text-xl text-gray-400">Real-time monitoring and analytics</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <!-- Stat Card 1 -->
+                <div class="bg-dark-elevated rounded-2xl p-6 text-center scroll-reveal">
+                    <div class="text-3xl font-bold text-neon-green mb-2">156</div>
+                    <div class="text-gray-400">Active Donors</div>
+                    <div class="text-sm text-neon-green mt-2">
+                        <i class="fas fa-arrow-up mr-1"></i>12% increase
+                    </div>
+                </div>
+                
+                <!-- Stat Card 2 -->
+                <div class="bg-dark-elevated rounded-2xl p-6 text-center scroll-reveal">
+                    <div class="text-3xl font-bold text-coral mb-2">23</div>
+                    <div class="text-gray-400">Pending Requests</div>
+                    <div class="text-sm text-coral mt-2">
+                        <i class="fas fa-clock mr-1"></i>Urgent
+                    </div>
+                </div>
+                
+                <!-- Stat Card 3 -->
+                <div class="bg-dark-elevated rounded-2xl p-6 text-center scroll-reveal">
+                    <div class="text-3xl font-bold text-blood-red mb-2">4.2</div>
+                    <div class="text-gray-400">Avg Response Time</div>
+                    <div class="text-sm text-gray-500 mt-2">minutes</div>
+                </div>
+                
+                <!-- Stat Card 4 -->
+                <div class="bg-dark-elevated rounded-2xl p-6 text-center scroll-reveal">
+                    <div class="text-3xl font-bold text-neon-green mb-2">98%</div>
+                    <div class="text-gray-400">Success Rate</div>
+                    <div class="text-sm text-neon-green mt-2">
+                        <i class="fas fa-arrow-up mr-1"></i>Excellent
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="bg-dark-elevated rounded-2xl p-8 scroll-reveal">
+                <h3 class="text-2xl font-poppins font-semibold mb-6">Recent Activity</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 bg-dark-bg rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-3 h-3 bg-neon-green rounded-full animate-pulse"></div>
+                            <span>Blood request matched - O+ type</span>
+                        </div>
+                        <span class="text-sm text-gray-400">2 min ago</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-dark-bg rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-3 h-3 bg-coral rounded-full animate-pulse"></div>
+                            <span>New donor registered - A+ type</span>
+                        </div>
+                        <span class="text-sm text-gray-400">5 min ago</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-dark-bg rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-3 h-3 bg-blood-red rounded-full animate-pulse"></div>
+                            <span>Emergency request - B- type</span>
+                        </div>
+                        <span class="text-sm text-gray-400">8 min ago</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Registration Section -->
+    <section class="py-20 bg-dark-bg">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-16 scroll-reveal">
+                    <h2 class="text-5xl font-poppins font-bold mb-6">
+                        <span class="text-white">Become a</span> 
+                        <span class="text-blood-red">Hero</span>
+                    </h2>
+                    <p class="text-xl text-gray-400">Join our network and help save lives in your community</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <!-- Registration Form -->
+                    <div class="bg-dark-elevated rounded-2xl p-8 scroll-reveal">
+                        <h3 class="text-2xl font-poppins font-semibold mb-6">Donor Registration</h3>
+                        <form class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium mb-2" data-mock="true">Full Name</label>
+                                <input type="text" class="w-full px-4 py-3 bg-dark-bg border border-gray-600 rounded-lg focus:border-blood-red focus:ring-blood-red focus:ring-1 transition-colors" placeholder="Enter your full name" data-mock="true">
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2" data-mock="true">Blood Group</label>
+                                    <select class="w-full px-4 py-3 bg-dark-bg border border-gray-600 rounded-lg focus:border-blood-red focus:ring-blood-red focus:ring-1 transition-colors" data-mock="true">
+                                        <option>Select blood group</option>
+                                        <option>O+</option>
+                                        <option>O-</option>
+                                        <option>A+</option>
+                                        <option>A-</option>
+                                        <option>B+</option>
+                                        <option>B-</option>
+                                        <option>AB+</option>
+                                        <option>AB-</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2" data-mock="true">Age</label>
+                                    <input type="number" class="w-full px-4 py-3 bg-dark-bg border border-gray-600 rounded-lg focus:border-blood-red focus:ring-blood-red focus:ring-1 transition-colors" placeholder="25" data-mock="true">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2" data-mock="true">Phone Number</label>
+                                <input type="tel" class="w-full px-4 py-3 bg-dark-bg border border-gray-600 rounded-lg focus:border-blood-red focus:ring-blood-red focus:ring-1 transition-colors" placeholder="+1 (555) 123-4567" data-mock="true">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2" data-mock="true">Location</label>
+                                <input type="text" class="w-full px-4 py-3 bg-dark-bg border border-gray-600 rounded-lg focus:border-blood-red focus:ring-blood-red focus:ring-1 transition-colors" placeholder="City, State" data-mock="true">
+                            </div>
+                            
+                            <button type="submit" class="w-full bg-gradient-to-r from-blood-red to-crimson text-white py-3 rounded-lg font-semibold hover:scale-105 transition-transform emergency-glow" data-event="click:handleRegistration" data-implementation="Should validate form and submit to backend">
+                                Register as Donor
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Registration Benefits -->
+                    <div class="scroll-reveal">
+                        <div class="space-y-8">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-neon-green/20 rounded-lg flex items-center justify-center neon-glow">
+                                    <i class="fas fa-heart text-neon-green"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xl font-semibold mb-2">Save Lives Instantly</h4>
+                                    <p class="text-gray-400">Get notified when someone near you needs your blood type in an emergency.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-coral/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-map-marker-alt text-coral"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xl font-semibold mb-2">Location-Based Matching</h4>
+                                    <p class="text-gray-400">Our smart algorithm connects you with nearby requests for faster response times.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-blood-red/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-shield-alt text-blood-red"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xl font-semibold mb-2">Privacy Protected</h4>
+                                    <p class="text-gray-400">Your personal information is secure and only shared with verified requests.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Notification System -->
+    <div id="notification-system" class="fixed top-20 right-4 space-y-4 z-40">
+        <!-- Sample Notifications (Hidden by default) -->
+        <div class="notification-slide bg-dark-elevated rounded-lg p-4 max-w-sm shadow-2xl border border-blood-red">
+            <div class="flex items-center space-x-3">
+                <div class="w-3 h-3 bg-blood-red rounded-full animate-pulse"></div>
+                <div>
+                    <div class="font-semibold text-sm">Emergency Blood Request</div>
+                    <div class="text-xs text-gray-400">O+ needed at City Hospital</div>
+                </div>
+                <button class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark-elevated py-12 border-t border-gray-800">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="blood-drop"></div>
+                        <span class="text-xl font-poppins font-bold text-blood-red">BloodConnect</span>
+                    </div>
+                    <p class="text-gray-400">Connecting blood donors with those in need through technology and compassion.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Quick Links</h4>
+                    <div class="space-y-2 text-sm text-gray-400">
+                        <a href="#" class="block hover:text-white transition-colors">Find Donors</a>
+                        <a href="#" class="block hover:text-white transition-colors">Request Blood</a>
+                        <a href="#" class="block hover:text-white transition-colors">Blood Banks</a>
+                        <a href="#" class="block hover:text-white transition-colors">Emergency</a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Support</h4>
+                    <div class="space-y-2 text-sm text-gray-400">
+                        <a href="#" class="block hover:text-white transition-colors">Help Center</a>
+                        <a href="#" class="block hover:text-white transition-colors">Privacy Policy</a>
+                        <a href="#" class="block hover:text-white transition-colors">Terms of Service</a>
+                        <a href="#" class="block hover:text-white transition-colors">Contact Us</a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Emergency Hotline</h4>
+                    <div class="text-2xl font-bold text-blood-red mb-2">1-800-BLOOD</div>
+                    <div class="text-sm text-gray-400">24/7 Emergency Support</div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; 2024 BloodConnect. All rights reserved. Built to save lives.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            // Custom cursor functionality
+            const cursor = document.querySelector('.custom-cursor');
+            let mouseX = 0, mouseY = 0;
+            
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                cursor.style.left = mouseX - 10 + 'px';
+                cursor.style.top = mouseY - 10 + 'px';
+            });
+            
+            // Cursor hover effects
+            document.querySelectorAll('button, a, [role="button"]').forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('cursor-hover'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('cursor-hover'));
+            });
+            
+            document.getElementById('emergency-request').addEventListener('mouseenter', () => {
+                cursor.classList.add('cursor-emergency');
+            });
+            document.getElementById('emergency-request').addEventListener('mouseleave', () => {
+                cursor.classList.remove('cursor-emergency');
+            });
+            
+            // GSAP Animations
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // Scroll reveal animations
+            gsap.utils.toArray('.scroll-reveal').forEach((element, i) => {
+                gsap.fromTo(element, {
+                    y: 50,
+                    opacity: 0
+                }, {
+                    y: 0,
+                    opacity: 1,
+                    duration: 0.8,
+                    delay: i * 0.1,
+                    scrollTrigger: {
+                        trigger: element,
+                        start: "top 80%",
+                        end: "bottom 20%",
+                        toggleActions: "play none none reverse"
+                    }
+                });
+            });
+            
+            // Hero section animations
+            gsap.timeline()
+                .from('h1', { duration: 1, y: 100, opacity: 0, ease: "power3.out" })
+                .from('p', { duration: 0.8, y: 50, opacity: 0, delay: 0.2 })
+                .from('#emergency-request', { duration: 0.8, scale: 0, opacity: 0, delay: 0.4, ease: "back.out(1.7)" });
+            
+            // Map marker animations
+            gsap.utils.toArray('.map-marker').forEach((marker, i) => {
+                gsap.fromTo(marker, {
+                    y: -20,
+                    opacity: 0
+                }, {
+                    y: 0,
+                    opacity: 1,
+                    duration: 1,
+                    delay: i * 0.3,
+                    ease: "bounce.out",
+                    scrollTrigger: {
+                        trigger: '#map-section',
+                        start: "top 50%"
+                    }
+                });
+            });
+            
+            // Donor cards stagger animation
+            gsap.fromTo('.donor-card', {
+                y: 100,
+                opacity: 0,
+                scale: 0.9
+            }, {
+                y: 0,
+                opacity: 1,
+                scale: 1,
+                duration: 0.6,
+                stagger: 0.2,
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: '#donors',
+                    start: "top 70%"
+                }
+            });
+            
+            // Emergency request button click animation
+            document.getElementById('emergency-request').addEventListener('click', function() {
+                // Flash animation
+                gsap.to(this, {
+                    boxShadow: "0 0 50px rgba(215, 38, 56, 1)",
+                    scale: 1.1,
+                    duration: 0.1,
+                    yoyo: true,
+                    repeat: 1
+                });
+                
+                // Show notification after click
+                setTimeout(() => {
+                    showNotification('Emergency request sent!', 'success');
+                }, 500);
+                
+                // TODO: Implement actual emergency request logic
+            });
+            
+            // Notification system
+            function showNotification(message, type = 'info') {
+                const notificationContainer = document.getElementById('notification-system');
+                const notification = document.createElement('div');
+                notification.className = `notification-slide bg-dark-elevated rounded-lg p-4 max-w-sm shadow-2xl border ${type === 'success' ? 'border-neon-green' : type === 'error' ? 'border-blood-red' : 'border-gray-600'}`;
+                
+                notification.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 bg-${type === 'success' ? 'neon-green' : type === 'error' ? 'blood-red' : 'blue-500'} rounded-full animate-pulse"></div>
+                        <div class="flex-1">
+                            <div class="font-semibold text-sm">${message}</div>
+                        </div>
+                        <button class="text-gray-400 hover:text-white" onclick="this.parentElement.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                
+                notificationContainer.appendChild(notification);
+                
+                // Animate in
+                setTimeout(() => {
+                    notification.classList.add('active');
+                }, 100);
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    notification.remove();
+                }, 5000);
+            }
+            
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            // Form validation and submission
+            document.querySelector('form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Simple validation animation
+                const inputs = this.querySelectorAll('input, select');
+                let isValid = true;
+                
+                inputs.forEach(input => {
+                    if (!input.value.trim()) {
+                        gsap.to(input, {
+                            borderColor: '#D72638',
+                            duration: 0.3
+                        });
+                        isValid = false;
+                    } else {
+                        gsap.to(input, {
+                            borderColor: '#00FF88',
+                            duration: 0.3
+                        });
+                    }
+                });
+                
+                if (isValid) {
+                    showNotification('Registration successful! Welcome to BloodConnect.', 'success');
+                    // TODO: Implement actual form submission logic
+                } else {
+                    showNotification('Please fill in all required fields.', 'error');
+                }
+            });
+            
+            // Simulate real-time updates
+            setInterval(() => {
+                // Randomly update donor availability (visual simulation)
+                const markers = document.querySelectorAll('.map-marker .bg-neon-green');
+                if (markers.length > 0) {
+                    const randomMarker = markers[Math.floor(Math.random() * markers.length)];
+                    gsap.to(randomMarker, {
+                        scale: 1.5,
+                        duration: 0.5,
+                        yoyo: true,
+                        repeat: 1
+                    });
+                }
+            }, 10000);
+            
+        })();
+    </script>
+</body>
+</html>

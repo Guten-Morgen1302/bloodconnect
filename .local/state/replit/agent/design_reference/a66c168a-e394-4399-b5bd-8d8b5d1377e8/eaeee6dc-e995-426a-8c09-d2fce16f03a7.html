@@ -1,0 +1,769 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodConnect - Digital Blood Bank & Donor Locator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'blood-red': '#D72638',
+                        'donor-green': '#2ECC71',
+                        'emergency-orange': '#F39C12',
+                        'dark-gray': '#2C3E50'
+                    },
+                    fontFamily: {
+                        'poppins': ['Poppins', 'sans-serif'],
+                        'inter': ['Inter', 'sans-serif']
+                    },
+                    animation: {
+                        'pulse-red': 'pulse-red 2s infinite',
+                        'fade-in': 'fadeIn 0.6s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-out'
+                    },
+                    keyframes: {
+                        'pulse-red': {
+                            '0%, 100%': { boxShadow: '0 0 0 0 rgba(215, 38, 56, 0.7)' },
+                            '70%': { boxShadow: '0 0 0 10px rgba(215, 38, 56, 0)' }
+                        },
+                        'fadeIn': {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        'slideUp': {
+                            '0%': { transform: 'translateY(100%)' },
+                            '100%': { transform: 'translateY(0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+</head>
+<body class="bg-gray-50 font-inter">
+    <!-- Navigation Header -->
+    <nav class="bg-white shadow-lg border-b-4 border-blood-red sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-blood-red rounded-full flex items-center justify-center">
+                        <i class="fas fa-tint text-white text-lg"></i>
+                    </div>
+                    <h1 class="text-2xl font-poppins font-bold text-dark-gray">BloodConnect</h1>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#home" class="text-dark-gray hover:text-blood-red transition-colors">Home</a>
+                    <a href="#donors" class="text-dark-gray hover:text-blood-red transition-colors">Find Donors</a>
+                    <a href="#register" class="text-dark-gray hover:text-blood-red transition-colors">Register</a>
+                    <a href="#admin" class="text-dark-gray hover:text-blood-red transition-colors">Admin</a>
+                </div>
+
+                <button class="md:hidden text-dark-gray">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Emergency Alert Banner -->
+    <div class="bg-emergency-orange text-white px-4 py-3 text-center animate-fade-in">
+        <div class="flex items-center justify-center space-x-2">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span class="font-medium">Emergency: 3 urgent blood requests in your area</span>
+            <button class="ml-4 bg-white text-emergency-orange px-3 py-1 rounded-full text-sm font-semibold hover:bg-gray-100 transition-colors">
+                View
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+
+        <!-- @COMPONENT: EmergencyRequestSection -->
+        <section id="home" class="text-center mb-12 animate-fade-in">
+            <div class="bg-white rounded-2xl shadow-xl p-8 border-l-8 border-blood-red">
+                <h2 class="text-4xl md:text-5xl font-poppins font-bold text-dark-gray mb-4">
+                    Need Blood? Get Help Now.
+                </h2>
+                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                    Connect instantly with verified donors and blood banks in your area. Every second counts.
+                </p>
+                
+                <!-- Emergency Request Button -->
+                <button 
+                    data-event="click:handleEmergencyRequest" 
+                    data-implementation="Should trigger emergency request flow with form validation"
+                    class="bg-blood-red hover:bg-red-700 text-white font-poppins font-bold py-6 px-12 rounded-2xl text-2xl shadow-2xl transform hover:scale-105 transition-all duration-300 animate-pulse-red mb-6">
+                    <i class="fas fa-plus-circle mr-3"></i>
+                    REQUEST BLOOD NOW
+                </button>
+                
+                <div class="grid md:grid-cols-3 gap-6 mt-8">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-donor-green rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-users text-white text-2xl"></i>
+                        </div>
+                        <h3 class="font-poppins font-semibold text-lg text-dark-gray">15,247 Active Donors</h3>
+                        <p class="text-gray-600">Ready to help in emergencies</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-blood-red rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-hospital text-white text-2xl"></i>
+                        </div>
+                        <h3 class="font-poppins font-semibold text-lg text-dark-gray">89 Blood Banks</h3>
+                        <p class="text-gray-600">Connected nationwide</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-emergency-orange rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-clock text-white text-2xl"></i>
+                        </div>
+                        <h3 class="font-poppins font-semibold text-lg text-dark-gray">< 5 Minutes</h3>
+                        <p class="text-gray-600">Average response time</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: EmergencyRequestSection -->
+
+        <!-- @COMPONENT: LiveMap -->
+        <section id="donors" class="mb-12">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <h3 class="text-2xl font-poppins font-bold text-dark-gray mb-2">Live Donor Map</h3>
+                            <p class="text-gray-600">Find donors and blood banks near you</p>
+                        </div>
+                        <div class="mt-4 md:mt-0 flex space-x-4">
+                            <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blood-red focus:border-transparent">
+                                <option>All Blood Types</option>
+                                <option>A+</option>
+                                <option>A-</option>
+                                <option>B+</option>
+                                <option>B-</option>
+                                <option>AB+</option>
+                                <option>AB-</option>
+                                <option>O+</option>
+                                <option>O-</option>
+                            </select>
+                            <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blood-red focus:border-transparent">
+                                <option>5 km radius</option>
+                                <option>10 km radius</option>
+                                <option>25 km radius</option>
+                                <option>50 km radius</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Map Container -->
+                <div class="relative h-96 bg-gray-100">
+                    <!-- Simulated Map with Markers -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center">
+                        <div class="text-center">
+                            <i class="fas fa-map-marked-alt text-6xl text-gray-400 mb-4"></i>
+                            <p class="text-gray-600 font-medium">Interactive Map Loading...</p>
+                            <p class="text-sm text-gray-500 mt-2"><!-- @FUNCTIONALITY: Implement Leaflet.js map with real-time donor locations --></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Simulated Markers -->
+                    <div class="absolute top-20 left-20 w-6 h-6 bg-donor-green rounded-full animate-pulse border-4 border-white shadow-lg flex items-center justify-center">
+                        <i class="fas fa-user text-white text-xs"></i>
+                    </div>
+                    <div class="absolute top-32 right-24 w-6 h-6 bg-blood-red rounded-full animate-pulse border-4 border-white shadow-lg flex items-center justify-center">
+                        <i class="fas fa-hospital text-white text-xs"></i>
+                    </div>
+                    <div class="absolute bottom-20 left-32 w-6 h-6 bg-donor-green rounded-full animate-pulse border-4 border-white shadow-lg flex items-center justify-center">
+                        <i class="fas fa-user text-white text-xs"></i>
+                    </div>
+                    <div class="absolute bottom-32 right-20 w-6 h-6 bg-donor-green rounded-full animate-pulse border-4 border-white shadow-lg flex items-center justify-center">
+                        <i class="fas fa-user text-white text-xs"></i>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="absolute top-4 right-4 bg-white rounded-lg shadow-lg p-3">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <div class="w-3 h-3 bg-donor-green rounded-full"></div>
+                            <span class="text-xs text-gray-700">Available Donors</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-blood-red rounded-full"></div>
+                            <span class="text-xs text-gray-700">Blood Banks</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Map Statistics -->
+                <div class="p-4 bg-gray-50 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-donor-green" data-bind="nearbyDonors.count">12</div>
+                        <div class="text-sm text-gray-600">Nearby Donors</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blood-red" data-bind="bloodBanks.count">3</div>
+                        <div class="text-sm text-gray-600">Blood Banks</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-emergency-orange" data-bind="averageDistance">2.3</div>
+                        <div class="text-sm text-gray-600">Avg Distance (km)</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-dark-gray" data-bind="responseTime">4</div>
+                        <div class="text-sm text-gray-600">Avg Response (min)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: LiveMap -->
+
+        <!-- @COMPONENT: DonorCards -->
+        <section class="mb-12">
+            <h3 class="text-2xl font-poppins font-bold text-dark-gray mb-6">Available Donors Nearby</h3>
+            
+            <!-- @MAP: nearbyDonors.map(donor => ( -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl shadow-lg border-l-4 border-donor-green hover:shadow-xl transition-shadow duration-300" data-mock="true">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-donor-green rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-dark-gray" data-bind="donor.name">Rajesh Kumar</h4>
+                                    <p class="text-sm text-gray-600" data-bind="donor.location">Sector 15, Noida</p>
+                                </div>
+                            </div>
+                            <span class="bg-blood-red text-white px-3 py-1 rounded-full text-sm font-semibold" data-bind="donor.bloodType">A+</span>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-map-marker-alt text-gray-400"></i>
+                                <span class="text-sm text-gray-600" data-bind="donor.distance">1.2 km away</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-clock text-gray-400"></i>
+                                <span class="text-sm text-gray-600" data-bind="donor.lastDonation">Last donated: 3 months ago</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <span class="text-sm text-gray-600" data-bind="donor.rating">4.9 rating</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button 
+                                data-event="click:contactDonor" 
+                                data-implementation="Should open contact modal with donor details"
+                                class="flex-1 bg-blood-red hover:bg-red-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors">
+                                <i class="fas fa-phone mr-2"></i>Contact
+                            </button>
+                            <button 
+                                data-event="click:viewProfile" 
+                                class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium transition-colors">
+                                Profile
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg border-l-4 border-donor-green hover:shadow-xl transition-shadow duration-300" data-mock="true">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-donor-green rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-dark-gray" data-bind="donor.name">Priya Sharma</h4>
+                                    <p class="text-sm text-gray-600" data-bind="donor.location">Connaught Place</p>
+                                </div>
+                            </div>
+                            <span class="bg-blood-red text-white px-3 py-1 rounded-full text-sm font-semibold" data-bind="donor.bloodType">O-</span>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-map-marker-alt text-gray-400"></i>
+                                <span class="text-sm text-gray-600" data-bind="donor.distance">2.8 km away</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-clock text-gray-400"></i>
+                                <span class="text-sm text-gray-600" data-bind="donor.lastDonation">Last donated: 5 months ago</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <span class="text-sm text-gray-600" data-bind="donor.rating">5.0 rating</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button 
+                                data-event="click:contactDonor" 
+                                class="flex-1 bg-blood-red hover:bg-red-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors">
+                                <i class="fas fa-phone mr-2"></i>Contact
+                            </button>
+                            <button 
+                                data-event="click:viewProfile" 
+                                class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium transition-colors">
+                                Profile
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg border-l-4 border-donor-green hover:shadow-xl transition-shadow duration-300" data-mock="true">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-donor-green rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-dark-gray" data-bind="donor.name">Arjun Patel</h4>
+                                    <p class="text-sm text-gray-600" data-bind="donor.location">Rohini, Delhi</p>
+                                </div>
+                            </div>
+                            <span class="bg-blood-red text-white px-3 py-1 rounded-full text-sm font-semibold" data-bind="donor.bloodType">B+</span>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-map-marker-alt text-gray-400"></i>
+                                <span class="text-sm text-gray-600" data-bind="donor.distance">3.5 km away</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-clock text-gray-400"></i>
+                                <span class="text-sm text-gray-600" data-bind="donor.lastDonation">Last donated: 2 months ago</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <span class="text-sm text-gray-600" data-bind="donor.rating">4.8 rating</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button 
+                                data-event="click:contactDonor" 
+                                class="flex-1 bg-blood-red hover:bg-red-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors">
+                                <i class="fas fa-phone mr-2"></i>Contact
+                            </button>
+                            <button 
+                                data-event="click:viewProfile" 
+                                class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium transition-colors">
+                                Profile
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_MAP )) -->
+        </section>
+        <!-- @END_COMPONENT: DonorCards -->
+
+        <!-- @COMPONENT: DonorRegistration -->
+        <section id="register" class="mb-12">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="bg-gradient-to-r from-blood-red to-red-600 p-6 text-white">
+                    <h3 class="text-3xl font-poppins font-bold mb-2">Become a Life Saver</h3>
+                    <p class="text-red-100">Join thousands of donors making a difference every day</p>
+                </div>
+                
+                <div class="p-8">
+                    <form class="grid md:grid-cols-2 gap-6" data-event="submit:handleDonorRegistration" data-implementation="Should validate all fields and submit to backend">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                            <input 
+                                type="text" 
+                                data-bind="registration.fullName"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blood-red focus:border-transparent transition-all"
+                                placeholder="Enter your full name"
+                                required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                            <input 
+                                type="tel" 
+                                data-bind="registration.phone"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blood-red focus:border-transparent transition-all"
+                                placeholder="+91 98765 43210"
+                                required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+                            <input 
+                                type="email" 
+                                data-bind="registration.email"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blood-red focus:border-transparent transition-all"
+                                placeholder="your.email@example.com"
+                                required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Blood Group *</label>
+                            <select 
+                                data-bind="registration.bloodType"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blood-red focus:border-transparent transition-all"
+                                required>
+                                <option value="">Select Blood Group</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Age *</label>
+                            <input 
+                                type="number" 
+                                data-bind="registration.age"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blood-red focus:border-transparent transition-all"
+                                placeholder="25"
+                                min="18" max="65"
+                                required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Gender *</label>
+                            <select 
+                                data-bind="registration.gender"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blood-red focus:border-transparent transition-all"
+                                required>
+                                <option value="">Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Address *</label>
+                            <textarea 
+                                data-bind="registration.address"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blood-red focus:border-transparent transition-all"
+                                placeholder="Enter your complete address"
+                                rows="3"
+                                required></textarea>
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Last Donation Date (if applicable)</label>
+                            <input 
+                                type="date" 
+                                data-bind="registration.lastDonation"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blood-red focus:border-transparent transition-all">
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <div class="flex items-start space-x-3">
+                                <input 
+                                    type="checkbox" 
+                                    id="terms" 
+                                    data-bind="registration.agreeTerms"
+                                    class="mt-1 w-5 h-5 text-blood-red border-gray-300 rounded focus:ring-blood-red"
+                                    required>
+                                <label for="terms" class="text-sm text-gray-700">
+                                    I agree to the <a href="#" class="text-blood-red hover:underline">terms and conditions</a> and 
+                                    <a href="#" class="text-blood-red hover:underline">privacy policy</a>. I understand that my information 
+                                    will be used to connect me with people in need of blood donations.
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="md:col-span-2 flex space-x-4">
+                            <button 
+                                type="submit"
+                                class="flex-1 bg-blood-red hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-300 transform hover:scale-105">
+                                <i class="fas fa-heart mr-2"></i>
+                                Register as Donor
+                            </button>
+                            <button 
+                                type="button"
+                                class="px-6 py-4 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: DonorRegistration -->
+
+        <!-- @COMPONENT: AdminDashboard -->
+        <section id="admin" class="mb-12">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="bg-dark-gray p-6 text-white">
+                    <h3 class="text-3xl font-poppins font-bold mb-2">Admin Dashboard</h3>
+                    <p class="text-gray-300">Monitor blood requests and donor responses in real-time</p>
+                </div>
+                
+                <!-- Live Statistics -->
+                <div class="p-6 bg-gray-50">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="bg-white rounded-lg p-4 border-l-4 border-blood-red">
+                            <div class="text-2xl font-bold text-blood-red" data-bind="stats.activeRequests">24</div>
+                            <div class="text-sm text-gray-600">Active Requests</div>
+                            <div class="text-xs text-gray-500 mt-1">↑ 12% from yesterday</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border-l-4 border-donor-green">
+                            <div class="text-2xl font-bold text-donor-green" data-bind="stats.donors">15,247</div>
+                            <div class="text-sm text-gray-600">Total Donors</div>
+                            <div class="text-xs text-gray-500 mt-1">↑ 5% from last week</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border-l-4 border-emergency-orange">
+                            <div class="text-2xl font-bold text-emergency-orange" data-bind="stats.responses">156</div>
+                            <div class="text-sm text-gray-600">Today's Responses</div>
+                            <div class="text-xs text-gray-500 mt-1">↑ 8% from yesterday</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border-l-4 border-blue-500">
+                            <div class="text-2xl font-bold text-blue-500" data-bind="stats.avgResponseTime">4.2</div>
+                            <div class="text-sm text-gray-600">Avg Response (min)</div>
+                            <div class="text-xs text-gray-500 mt-1">↓ 15% improvement</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Requests Table -->
+                <div class="p-6">
+                    <h4 class="text-xl font-poppins font-semibold text-dark-gray mb-4">Recent Blood Requests</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full table-auto">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Request ID</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Blood Type</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Location</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Urgency</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Responses</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <!-- @MAP: recentRequests.map(request => ( -->
+                                <tr data-mock="true">
+                                    <td class="px-4 py-3 text-sm text-gray-900" data-bind="request.id">#BR24001</td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blood-red text-white" data-bind="request.bloodType">
+                                            O-
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-900" data-bind="request.location">AIIMS, Delhi</td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800" data-bind="request.urgency">
+                                            Critical
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-900" data-bind="request.responses">8</td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" data-bind="request.status">
+                                            Active
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <button 
+                                            data-event="click:viewRequest" 
+                                            data-implementation="Should open detailed request view modal"
+                                            class="text-blood-red hover:text-red-700 text-sm font-medium">
+                                            View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr data-mock="true">
+                                    <td class="px-4 py-3 text-sm text-gray-900" data-bind="request.id">#BR24002</td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blood-red text-white" data-bind="request.bloodType">
+                                            A+
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-900" data-bind="request.location">Max Hospital, Noida</td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800" data-bind="request.urgency">
+                                            Moderate
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-900" data-bind="request.responses">5</td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" data-bind="request.status">
+                                            Active
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <button 
+                                            data-event="click:viewRequest" 
+                                            class="text-blood-red hover:text-red-700 text-sm font-medium">
+                                            View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr data-mock="true">
+                                    <td class="px-4 py-3 text-sm text-gray-900" data-bind="request.id">#BR24003</td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blood-red text-white" data-bind="request.bloodType">
+                                            B-
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-900" data-bind="request.location">Fortis, Gurgaon</td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" data-bind="request.urgency">
+                                            Routine
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-900" data-bind="request.responses">12</td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800" data-bind="request.status">
+                                            Fulfilled
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <button 
+                                            data-event="click:viewRequest" 
+                                            class="text-blood-red hover:text-red-700 text-sm font-medium">
+                                            View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <!-- @END_MAP )) -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: AdminDashboard -->
+
+    </div>
+
+    <!-- Push Notification Simulation -->
+    <!-- @COMPONENT: NotificationSystem -->
+    <div id="notificationContainer" class="fixed top-20 right-4 z-50 space-y-4">
+        <!-- @STATE: notifications:array = [] -->
+        <div class="bg-blood-red text-white p-4 rounded-lg shadow-lg max-w-sm animate-slide-up" data-mock="true" data-implementation="Should be dynamically generated from notification system">
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-exclamation text-blood-red"></i>
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-semibold text-sm">Emergency Blood Request</h4>
+                    <p class="text-xs text-red-100 mt-1">O- blood needed urgently at AIIMS Delhi. You match! Respond now.</p>
+                    <div class="flex space-x-2 mt-3">
+                        <button 
+                            data-event="click:respondToRequest"
+                            data-implementation="Should open response modal with contact details"
+                            class="bg-white text-blood-red px-3 py-1 rounded text-xs font-semibold hover:bg-gray-100 transition-colors">
+                            Respond
+                        </button>
+                        <button class="text-red-100 hover:text-white text-xs">Dismiss</button>
+                    </div>
+                </div>
+                <button class="text-red-200 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: NotificationSystem -->
+
+    <!-- Bottom Navigation for Mobile -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+        <div class="grid grid-cols-4 h-16">
+            <a href="#home" class="flex flex-col items-center justify-center text-gray-600 hover:text-blood-red transition-colors">
+                <i class="fas fa-home text-lg"></i>
+                <span class="text-xs mt-1">Home</span>
+            </a>
+            <a href="#donors" class="flex flex-col items-center justify-center text-gray-600 hover:text-blood-red transition-colors">
+                <i class="fas fa-map-marked-alt text-lg"></i>
+                <span class="text-xs mt-1">Map</span>
+            </a>
+            <a href="#register" class="flex flex-col items-center justify-center text-gray-600 hover:text-blood-red transition-colors">
+                <i class="fas fa-user-plus text-lg"></i>
+                <span class="text-xs mt-1">Register</span>
+            </a>
+            <a href="#admin" class="flex flex-col items-center justify-center text-gray-600 hover:text-blood-red transition-colors">
+                <i class="fas fa-chart-bar text-lg"></i>
+                <span class="text-xs mt-1">Dashboard</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+        // Initialize page interactions
+        (function() {
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Simulated notification system
+            function showNotification() {
+                // TODO: Implement real-time push notification system
+                console.log('Notification system would trigger here');
+            }
+
+            // Emergency request button interaction
+            const emergencyBtn = document.querySelector('[data-event="click:handleEmergencyRequest"]');
+            if (emergencyBtn) {
+                emergencyBtn.addEventListener('click', function() {
+                    // TODO: Implement emergency request flow with form validation
+                    alert('Emergency request system would open here with form validation');
+                });
+            }
+
+            // Form submission handlers
+            const forms = document.querySelectorAll('form[data-event*="submit:"]');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // TODO: Implement form validation and submission to backend
+                    alert('Form would be validated and submitted to backend');
+                });
+            });
+
+            // Auto-dismiss notifications after 10 seconds
+            setTimeout(() => {
+                const notifications = document.querySelectorAll('#notificationContainer > div');
+                notifications.forEach(notification => {
+                    notification.style.animation = 'slideDown 0.5s ease-out forwards';
+                    setTimeout(() => notification.remove(), 500);
+                });
+            }, 10000);
+
+            // Simulate real-time map updates
+            setInterval(() => {
+                const markers = document.querySelectorAll('.animate-pulse');
+                markers.forEach(marker => {
+                    marker.style.animation = 'none';
+                    setTimeout(() => marker.style.animation = 'pulse 2s infinite', 10);
+                });
+            }, 5000);
+
+        })();
+    </script>
+</body>
+</html>
